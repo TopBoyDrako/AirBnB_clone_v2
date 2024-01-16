@@ -129,8 +129,15 @@ class HBNBCommand(cmd.Cmd):
         print(new_instance.id)
         if params:
             for param in params:
-                key, value = param.split('=')
-                new_instance.__dict__.update({key: eval(value)})
+                try:
+                    key, value = param.split('=')
+                    value = value.replace('_', ' ')
+                    value = eval(value)
+                    new_instance.__dict__.update({key: value})
+                except SyntaxError:
+                    pass
+                except ValueError:
+                    pass
         storage.save()
 
     def help_create(self):
