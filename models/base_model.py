@@ -5,8 +5,6 @@ import os
 from datetime import datetime
 from sqlalchemy import Column, String, DATETIME
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
 
 
 Base = declarative_base()
@@ -14,10 +12,9 @@ Base = declarative_base()
 
 class BaseModel:
     """A base class for all hbnb models"""
-
-    id:Mapped[str] = mapped_column(String(60), primary_key=True, nullable=False)
-    created_at:Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow())
-    updated_at:Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow())
+    id = Column(String(60), nullable=False, primary_key=True, unique=True)
+    created_at = Column(DATETIME, nullable=False, default=datetime.utcnow())
+    updated_at = Column(DATETIME, nullable=False, default=datetime.utcnow())
 
     def __init__(self, *args, **kwargs):
         """Instatntiates a new model"""
@@ -57,7 +54,4 @@ class BaseModel:
     
     def delete(self):
         from models import storage
-        all_instances = storage.all()
-        instance = f'{type(self).__name__}.{self.id}'
-        if instance in all_instances:
-            del all_instances[instance]
+        storage.delete(self)
