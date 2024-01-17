@@ -1,13 +1,16 @@
 #!/usr/bin/python3
 """This module defines a base class for all models in our hbnb clone"""
 import uuid
+import os
 from datetime import datetime
-from sqlalchemy import DateTime, String
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, String, DATETIME
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
+
 Base = declarative_base()
+
 
 class BaseModel:
     """A base class for all hbnb models"""
