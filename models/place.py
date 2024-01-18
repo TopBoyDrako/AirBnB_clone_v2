@@ -1,37 +1,30 @@
 #!/usr/bin/python3
-""" Place Module for HBNB project """
-
-from sqlalchemy import String
-from sqlalchemy import Integer
-from sqlalchemy import Float
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import relationship
+""" Place module for the HBNB project """
 from models.base_model import BaseModel, Base
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, Table
+from sqlalchemy.orm import relationship
+from os import getenv
 
+place_amenity = Table('place_amenity', Base.metadata,
+                      Column('place_id', String(60), ForeignKey('places.id'),
+                             nullable=False),
+                      Column('amenity_id', String(60),
+                             ForeignKey('amenities.id'), nullable=False)
+                      )
 
 class Place(BaseModel, Base):
-    """ A place to stay """
-
+    """ Place class to store place information """
     __tablename__ = 'places'
-    city_id: Mapped[str] = mapped_column(
-        String(60), ForeignKey("cities.id"), nullable=False)
-    user_id: Mapped[str] = mapped_column(
-        String(60), ForeignKey("users.id"), nullable=False)
-    name: Mapped[str] = mapped_column(String(128), nullable=False)
-    description: Mapped[str] = mapped_column(String(1024), nullable=True)
-    number_rooms: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=0)
-    number_bathrooms: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=0)
-    max_guest: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    price_by_night: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=0)
-    latitude: Mapped[float] = mapped_column(Float, nullable=True)
-    longitude: Mapped[float] = mapped_column(Float, nullable=True)
 
-    user: Mapped['User'] = relationship(back_populates='places')
-    cities: Mapped['City'] = relationship(back_populates='places')
-
-    amenity_ids = []
+    if getenv('HBNB_TYPE_STORAGE') == 'db':
+        reviews = relationship("Review", backref="place",
+                               cascade="all, delete-orphan")
+    elif getenv('HBNB_TYPE_STORAGE') == 'file':
+        @property
+        def reviews(self):
+            """ Getter attribute for reviews in FileStorage """
+            reviews_list = []
+            for review in models.storage.all(Review).values():
+                if review.place_id == self.id:
+                    reviews_list.append(review)
+            return reviews_list
