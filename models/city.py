@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """ City Module for HBNB project """
 
+from typing import List
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped
@@ -17,3 +18,6 @@ class City(BaseModel, Base):
     name: Mapped[str] = mapped_column(String(128), nullable=False)
     state_id: Mapped[int] = mapped_column(ForeignKey('states.id'))
     state: Mapped["State"] = relationship(back_populates='cities')
+
+    places: Mapped[List['Place']] = relationship(
+        back_populates='cities', cascade='all, delete')
