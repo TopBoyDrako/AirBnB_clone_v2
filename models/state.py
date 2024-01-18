@@ -2,24 +2,20 @@
 """ State Module for HBNB project """
 
 from os import getenv
-from typing import List
-from sqlalchemy import String
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import relationship
 from models.base_model import BaseModel, Base
 from models.city import City
+from sqlalchemy import Column, String
 
-class State(BaseModel):
+
+class State(BaseModel, Base):
     """ State class """
 
     __tablename__ = 'states'
-    name:Mapped[int] = mapped_column(String(128), nullable=False)
+    name = Column(String(128), nullable=False)
+    cities = relationship("City", backref="state", cascade='all, delete')
 
-    if getenv('HBNB_ENV') == 'db':
-        cities:Mapped[List["City"]] = relationship(back_populates="state", cascade='all, delete')
-    elif getenv('HBNB_ENV') == 'file':
+    if getenv('HBNB_ENV') == 'file':
         @property
         def cities(self):
             """Gets a list of all related cities."""
