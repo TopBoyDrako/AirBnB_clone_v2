@@ -2,15 +2,28 @@
 """ Place Module for HBNB project """
 
 from os import getenv
+from typing import List
 from sqlalchemy import String
 from sqlalchemy import Integer
 from sqlalchemy import Float
 from sqlalchemy import ForeignKey
+from sqlalchemy import Table
+from sqlalchemy import Column
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
-from models.base_model import BaseModel, Base
-from models.review import Review
+from models.base_model import Base
+from models.base_model import BaseModel
+from models.amenity import Amenity
+
+
+place_amenity = Table(
+    'place_amenity',
+    Base.metadata,
+    Column('place_id', String(60), ForeignKey('places.id'), primary_key=True),
+    Column('amenity_id', String(60), ForeignKey(
+        'amenities.id'), primary_key=True)
+)
 
 
 class Place(BaseModel, Base):
@@ -37,6 +50,9 @@ class Place(BaseModel, Base):
     cities: Mapped['City'] = relationship(back_populates='places')
     reviews: Mapped["Review"] = relationship(
         back_populates='place', cascade='all, delete')
+    amenities: Mapped[List['Amenity']] = relationship(
+        secondary='place_amenity', back_populates='place_amenities', viewonly=False)
+    amenity_ids = []
 
     if getenv("HBNB_ENV") == 'file':
         @property
@@ -48,4 +64,17 @@ class Place(BaseModel, Base):
                     review_list.append(review)
             return review_list
 
-    amenity_ids = []
+        @property
+        def amenities(self):
+            """Returns list of amenities"""
+            amenity_list = []
+            for amenity in models.storage.all(Amenity).values():
+                if amenity.id in self.amenity_ids:
+                    amenity_list.append(amenity)
+            return amenity_list
+
+        @amenities.setter
+        def amenities(self, values):
+            """Sets amenity"""
+            if type(value) == Amenity:
+                self.amenity_ids.append(value.id)
