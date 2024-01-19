@@ -52,7 +52,7 @@ class Place(BaseModel, Base):
     reviews: Mapped["Review"] = relationship(
         back_populates='place', cascade='all, delete')
     amenities: Mapped[List['Amenity']] = relationship(
-        secondary='place_amenity', back_populates='place_amenities', viewonly=False)
+        secondary='place_amenity', viewonly=False)
     amenity_ids = []
 
     if getenv("HBNB_ENV") == 'file':
